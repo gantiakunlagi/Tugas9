@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+
+{% block title %}Dataset Explorer - Klasifikasi Penyakit Daun Padi KNN{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>Dataset Explorer & Analisis Statistik</h2>
+    <p>Eksplorasi dataset pelatihan daun padi dan hasil analisis visualisasi dari Matplotlib dan Seaborn.</p>
+</div>
+
+
+    <!-- Kaggle Source Info Card -->
+    <div class="glass-card" style="margin-bottom: 2rem; display: flex; align-items: center; gap: 1.5rem; border-color: rgba(52, 152, 219, 0.3); background: rgba(52, 152, 219, 0.05);">
+        <i class="fa-brands fa-kaggle" style="font-size: 3rem; color: #20beff; filter: drop-shadow(0 0 8px rgba(32, 190, 255, 0.4));"></i>
+        <div>
+            <h4 style="font-family: 'Outfit', sans-serif; font-size: 1.15rem; color: #fff; margin-bottom: 0.25rem;">Sumber Data Terbuka (Open Data Source)</h4>
+            <p style="font-size: 0.88rem; color: #d1d5db; line-height: 1.5;">
+                Dataset fitur visual ini didasarkan pada data citra riil dari <strong><a href="https://www.kaggle.com/datasets/vbookshelf/rice-leaf-diseases" target="_blank" style="color: #20beff; text-decoration: underline;">Kaggle: Rice Leaf Diseases Dataset</a></strong> (UCI Machine Learning Repository). Melalui proses ekstraksi fitur pengolahan citra (*Image Feature Extraction*), piksel gambar daun padi asli dianalisis distribusi warnanya (HSL/RGB) untuk menghasilkan representasi data numerik tabular (Greenness, Bercak Cokelat, Bercak Hitam, dan Luas Lesi) sehingga dapat diproses menggunakan perhitungan jarak matematika pada algoritma KNN.
+            </p>
+        </div>
+    </div>
+
+<div class="dataset-layout">
+    
+    <!-- 1. Stats Cards Grid -->
+    <div class="stats-grid">
+        <div class="glass-card stat-card">
+            <div class="stat-icon-wrapper total">
+                <i class="fa-solid fa-folder-open"></i>
+            </div>
+            <div>
+                <p class="stat-number">200</p>
+                <p class="stat-name">Total Sampel Latih</p>
+            </div>
+        </div>
+        
+        <div class="glass-card stat-card">
+            <div class="stat-icon-wrapper blight">
+                <i class="fa-solid fa-biohazard"></i>
+            </div>
+            <div>
+                <p class="stat-number">50</p>
+                <p class="stat-name">Hawar Daun Bakteri</p>
+            </div>
+        </div>
+        
+        <div class="glass-card stat-card">
+            <div class="stat-icon-wrapper brown">
+                <i class="fa-solid fa-circle-nodes"></i>
+            </div>
+            <div>
+                <p class="stat-number">50</p>
+                <p class="stat-name">Bercak Cokelat</p>
+            </div>
+        </div>
+        
+        <div class="glass-card stat-card">
+            <div class="stat-icon-wrapper smut">
+                <i class="fa-solid fa-viruses"></i>
+            </div>
+            <div>
+                <p class="stat-number">50</p>
+                <p class="stat-name">Smut Daun (Hitam)</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Seaborn/Matplotlib Visualizations -->
+    <div class="visualizations-grid">
+        
+        <!-- Boxplot Features -->
+        <div class="glass-card vis-card">
+            <h3 class="card-title"><i class="fa-solid fa-chart-area"></i> Boxplot Sebaran Fitur</h3>
+            <div class="vis-image-container">
+                <img class="vis-image" src="{{ url_for('static', filename='images/analysis/boxplot_features.png') }}" alt="Boxplot Fitur Daun Padi">
+            </div>
+            <p class="vis-description">
+                <strong>Deskripsi:</strong> Grafik boxplot di atas menunjukkan distribusi setiap fitur visual (Greenness, Brown Spot, Black Spot, Lesion Area) di keempat kelas. 
+                Dapat dilihat bahwa tanaman sehat memiliki <em>Greenness</em> yang sangat tinggi, penyakit Hawar Daun Bakteri memiliki <em>LesionArea</em> yang sangat dominan, Bercak Cokelat didominasi oleh <em>BrownSpotDensity</em>, dan Smut Daun didominasi oleh <em>BlackSpotDensity</em>. Hal ini membuktikan bahwa ciri visual yang dipilih sangat representatif bagi KNN.
+            </p>
+        </div>
+        
+        <!-- Correlation Matrix -->
+        <div class="glass-card vis-card">
+            <h3 class="card-title"><i class="fa-solid fa-table-cells-radial"></i> Matriks Korelasi</h3>
+            <div class="vis-image-container">
+                <img class="vis-image" src="{{ url_for('static', filename='images/analysis/correlation_matrix.png') }}" alt="Matriks Korelasi Fitur">
+            </div>
+            <p class="vis-description">
+                <strong>Deskripsi:</strong> Matriks korelasi Pearson menunjukkan hubungan linear antar fitur. 
+                Terdapat korelasi negatif yang kuat antara <em>Greenness</em> dengan <em>LesionArea</em> (-0.80), yang menunjukkan bahwa ketika penyakit hawar/lesi meluas, area hijau sehat pada daun padi akan menyusut secara drastis. Korelasi antar fitur spot (cokelat/hitam) cenderung bernilai sangat rendah, menandakan ciri yang independen.
+            </p>
+        </div>
+        
+    </div>
+    
+    <!-- Pairplot (Full-width Visualisation) -->
+    <div class="glass-card">
+        <h3 class="card-title"><i class="fa-solid fa-grip"></i> Scatter Plot Matrix (Pairplot)</h3>
+        <div class="vis-image-container" style="max-height: 550px; overflow-y: auto; display: flex; justify-content: center;">
+            <img class="vis-image" src="{{ url_for('static', filename='images/analysis/pairplot_features.png') }}" alt="Pairplot Fitur Daun Padi" style="max-width: 80%; height: auto;">
+        </div>
+        <p class="vis-description" style="margin-top: 1rem;">
+            <strong>Deskripsi:</strong> Pairplot Seaborn memetakan visualisasi scatter plot dua dimensi untuk setiap kombinasi fitur. Distribusi densitas di sepanjang diagonal (KDE) menunjukkan batas pemisah antar kelas. Dapat diamati bahwa kelas daun padi sehat (hijau) mengelompok secara terpisah (linearly separable) dari kelas penyakit lainnya, sementara beberapa kelas penyakit memiliki sedikit irisan batas (decision boundary overlap) yang menantang model KNN untuk mengklasifikasikan secara presisi.
+        </p>
+    </div>
+
+    <!-- 3. Dataset Table Explorer -->
+    <div class="glass-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+            <h3 class="card-title" style="margin-bottom: 0;"><i class="fa-solid fa-table"></i> Data Mentah Dataset Pelatihan</h3>
+            <span class="upload-hint">Menampilkan 80 sampel pertama dari total 200 data latih</span>
+        </div>
+        
+        <div class="table-responsive" style="max-height: 450px; overflow-y: auto;">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Kehijauan (Greenness)</th>
+                        <th>Bercak Cokelat (BrownSpot)</th>
+                        <th>Bercak Hitam (BlackSpot)</th>
+                        <th>Luas Lesi (LesionArea)</th>
+                        <th>ID Kelas</th>
+                        <th>Kondisi / Penyakit</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in dataset[:80] %}
+                    <tr>
+                        <td><strong>#{{ loop.index }}</strong></td>
+                        <td>{{ "%.4f"|format(row.Greenness) }}</td>
+                        <td>{{ "%.4f"|format(row.BrownSpotDensity) }}</td>
+                        <td>{{ "%.4f"|format(row.BlackSpotDensity) }}</td>
+                        <td>{{ "%.4f"|format(row.LesionArea) }}</td>
+                        <td><code>{{ row.Label }}</code></td>
+                        <td>
+                            <div class="disease-dot-container">
+                                {% if row.Label == 0 %}
+                                    <span class="dot blight"></span>
+                                    <span>{{ row.DiseaseName }}</span>
+                                {% elif row.Label == 1 %}
+                                    <span class="dot brown"></span>
+                                    <span>{{ row.DiseaseName }}</span>
+                                {% elif row.Label == 2 %}
+                                    <span class="dot smut"></span>
+                                    <span>{{ row.DiseaseName }}</span>
+                                {% else %}
+                                    <span class="dot healthy"></span>
+                                    <span>{{ row.DiseaseName }}</span>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 2rem;">Data tidak ditemukan. Silakan jalankan script pembentuk dataset terlebih dahulu.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+</div>
+{% endblock %}

@@ -1,0 +1,275 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard Klasifikasi Penyakit Daun Padi - KNN Flask{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>Dashboard Klasifikasi & Simulasi KNN</h2>
+    <p>Gunakan upload citra atau geser parameter manual untuk memprediksi penyakit daun padi secara real-time.</p>
+</div>
+
+<div class="dashboard-grid">
+    <!-- Left Column: Input Panel -->
+    <div class="input-panel">
+        
+        <!-- Input Method Tabs -->
+        <div class="glass-card">
+            <h3 class="card-title"><i class="fa-solid fa-sliders"></i> Metode Input Data</h3>
+            <div class="tab-container">
+                <button type="button" class="tab-btn active" id="tab-btn-slider" onclick="switchInputMode('slider')">
+                    <i class="fa-solid fa-sliders-h"></i> Slider Manual
+                </button>
+                <button type="button" class="tab-btn" id="tab-btn-upload" onclick="switchInputMode('upload')">
+                    <i class="fa-solid fa-file-image"></i> Upload Gambar
+                </button>
+            </div>
+            
+            <form id="classify-form" style="margin-top: 1.5rem;" onsubmit="handleFormSubmit(event)">
+                <input type="hidden" name="mode" id="input-mode" value="slider">
+                
+                <!-- Slider Mode Section -->
+                <div id="slider-section" class="tab-content active">
+                    <div class="slider-features">
+                        
+                        <div class="param-group">
+                            <label class="param-label" for="greenness">
+                                Indeks Kehijauan (Greenness)
+                                <span class="param-value" id="greenness-val">0.85</span>
+                            </label>
+                            <input type="range" class="custom-range" id="greenness" name="greenness" min="0.1" max="1.0" step="0.01" value="0.85" oninput="updateParamVal('greenness')">
+                            <span class="upload-hint">Proporsi warna hijau sehat pada daun.</span>
+                        </div>
+                        
+                        <div class="param-group">
+                            <label class="param-label" for="brown_spot">
+                                Kepadatan Bercak Cokelat
+                                <span class="param-value" id="brown_spot-val">0.02</span>
+                            </label>
+                            <input type="range" class="custom-range" id="brown_spot" name="brown_spot" min="0.0" max="1.0" step="0.01" value="0.02" oninput="updateParamVal('brown_spot')">
+                            <span class="upload-hint">Persentase bercak kecokelatan oval (Brown Spot).</span>
+                        </div>
+                        
+                        <div class="param-group">
+                            <label class="param-label" for="black_spot">
+                                Kepadatan Bercak Hitam
+                                <span class="param-value" id="black_spot-val">0.01</span>
+                            </label>
+                            <input type="range" class="custom-range" id="black_spot" name="black_spot" min="0.0" max="1.0" step="0.01" value="0.01" oninput="updateParamVal('black_spot')">
+                            <span class="upload-hint">Persentase bintik hitam kecil menonjol (Leaf Smut).</span>
+                        </div>
+                        
+                        <div class="param-group">
+                            <label class="param-label" for="lesion_area">
+                                Luas Lesi Kuning/Kering
+                                <span class="param-value" id="lesion_area-val">0.02</span>
+                            </label>
+                            <input type="range" class="custom-range" id="lesion_area" name="lesion_area" min="0.0" max="1.0" step="0.01" value="0.02" oninput="updateParamVal('lesion_area')">
+                            <span class="upload-hint">Persentase luka memanjang kuning/kering dari ujung (Blight).</span>
+                        </div>
+                        
+                    </div>
+                </div>
+                
+                <!-- Upload Mode Section -->
+                <div id="upload-section" class="tab-content">
+                    <div class="upload-area" id="drop-zone" onclick="document.getElementById('file-input').click()">
+                        <i class="fa-solid fa-cloud-arrow-up upload-icon"></i>
+                        <p class="upload-text">Klik atau Tarik file ke sini</p>
+                        <p class="upload-hint">Format: JPG, JPEG, PNG (Maks. 5MB)</p>
+                        <input type="file" id="file-input" name="file" accept="image/*" style="display: none;" onchange="handleFileSelect(event)">
+                    </div>
+                    <div style="margin-top: 0.5rem; text-align: center;">
+                        <span class="upload-hint"><i class="fa-solid fa-circle-down"></i> Sampel Uji Kaggle: <a href="{{ url_for('static', filename='images/default_leaf.png') }}" download style="color: var(--primary); text-decoration: underline; font-weight: 500;">Download default_leaf.png</a></span>
+                    </div>
+                    
+                    <div class="preview-container" id="preview-container">
+                        <img id="img-preview" class="image-preview" src="#" alt="Preview Gambar">
+                        <button type="button" class="remove-btn" onclick="removeSelectedFile()" title="Hapus Gambar"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                </div>
+                
+                <!-- KNN Hyperparameter Section -->
+                <div class="hyperparams-container" style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid rgba(46, 204, 113, 0.15);">
+                    <h4 style="font-size: 0.95rem; font-weight: 600; color: #fff; margin-bottom: 0.75rem;"><i class="fa-solid fa-microchip"></i> Parameter Model KNN</h4>
+                    
+                    <div class="param-group">
+                        <label class="param-label" for="k-value">
+                            Jumlah Tetangga (K Neighbors)
+                            <span class="param-value" id="k-value-val">5</span>
+                        </label>
+                        <input type="range" class="custom-range" id="k-value" name="k" min="1" max="15" step="2" value="5" oninput="updateParamVal('k-value')">
+                    </div>
+                    
+                    <div class="param-group" style="margin-top: 0.5rem;">
+                        <label class="param-label" for="metric">Metrik Jarak (Distance Metric)</label>
+                        <select class="custom-select" id="metric" name="metric">
+                            <option value="euclidean" selected>Euclidean Distance (Garis Lurus)</option>
+                            <option value="manhattan">Manhattan Distance (Garis Siku)</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn-primary" style="width: 100%; margin-top: 1.5rem;" id="submit-btn">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> Jalankan Klasifikasi KNN
+                </button>
+            </form>
+        </div>
+        
+    </div>
+
+    <!-- Right Column: Results & Visualization Panel -->
+    <div class="results-panel">
+        
+        <!-- Prediction Result (Hero Card) -->
+        <div class="glass-card prediction-hero-card" id="result-hero" style="display: none;">
+            <div class="prediction-badge-container">
+                <span class="prediction-badge" id="res-badge">
+                    <i class="fa-solid fa-shield-virus"></i> <span id="res-badge-text">-</span>
+                </span>
+                
+                <div class="confidence-bar-container">
+                    <div class="confidence-label">Tingkat Keyakinan: <span id="confidence-val" style="color: var(--primary); font-weight: 700;">-</span></div>
+                    <div class="confidence-bg">
+                        <div class="confidence-fill" id="confidence-fill" style="width: 0%;"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <h3 class="prediction-title" id="res-title">Menghitung Prediksi...</h3>
+            <p class="prediction-cause" id="res-cause"><i class="fa-solid fa-circle-info"></i> Penyebab: -</p>
+            
+            <div class="info-accordion">
+                <div class="info-section">
+                    <h4 class="info-section-title symptoms-title"><i class="fa-solid fa-list-check"></i> Gejala Klinis:</h4>
+                    <ul class="info-list" id="res-symptoms">
+                        <!-- Symptoms list will be populated dynamically -->
+                    </ul>
+                </div>
+                <div class="info-section" style="margin-top: 0.5rem;">
+                    <h4 class="info-section-title solutions-title"><i class="fa-solid fa-hand-holding-medical"></i> Tindakan Pengendalian / Solusi:</h4>
+                    <ul class="info-list" id="res-solutions">
+                        <!-- Solutions list will be populated dynamically -->
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Welcome Card (Displayed before classification) -->
+        <div class="glass-card" id="welcome-card" style="text-align: center; padding: 4rem 2rem;">
+            <i class="fa-solid fa-seedling" style="font-size: 4rem; color: var(--primary); margin-bottom: 1.5rem; filter: drop-shadow(0 0 12px var(--primary));"></i>
+            <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.6rem; color: #fff; margin-bottom: 0.75rem;">Siap Melakukan Klasifikasi</h3>
+            <p style="color: var(--text-muted); max-width: 500px; margin: 0 auto; line-height: 1.6;">
+                Silakan masukkan data ciri visual daun padi dengan cara **mengunggah foto daun** atau **menyesuaikan nilai fitur lewat slider** di panel sebelah kiri, kemudian klik tombol **Jalankan Klasifikasi KNN** untuk melihat hasil analisis.
+            </p>
+        </div>
+
+        <!-- KNN Visualization Scatter Plot -->
+        <div class="glass-card plot-card" id="visualization-card" style="display: none;">
+            <h3 class="card-title"><i class="fa-solid fa-chart-line"></i> Ruang Fitur & K-Nearest Neighbors</h3>
+            <p class="upload-hint" style="margin-top: -0.75rem; margin-bottom: 1.25rem;">
+                Visualisasi dataset pelatihan. Titik besar yang berkedip adalah data input Anda. Garis putus-putus menunjukkan koneksi ke <strong>K-Tetangga Terdekat</strong>.
+            </p>
+            
+            <div class="plot-selectors">
+                <div class="selector-label">
+                    <span>Sumbu X:</span>
+                    <select class="custom-select" id="sumbu-x" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; width: 160px;" onchange="redrawChart()">
+                        <option value="Greenness" selected>Greenness (Hijau)</option>
+                        <option value="BrownSpotDensity">BrownSpot (Cokelat)</option>
+                        <option value="BlackSpotDensity">BlackSpot (Hitam)</option>
+                        <option value="LesionArea">LesionArea (Lesi)</option>
+                    </select>
+                </div>
+                <div class="selector-label">
+                    <span>Sumbu Y:</span>
+                    <select class="custom-select" id="sumbu-y" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; width: 160px;" onchange="redrawChart()">
+                        <option value="Greenness">Greenness (Hijau)</option>
+                        <option value="BrownSpotDensity">BrownSpot (Cokelat)</option>
+                        <option value="BlackSpotDensity">BlackSpot (Hitam)</option>
+                        <option value="LesionArea" selected>LesionArea (Lesi)</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="plot-container">
+                <canvas id="knnScatterPlot"></canvas>
+            </div>
+        </div>
+        
+        <!-- Probability Distribution Card -->
+        <div class="glass-card prob-card" id="prob-card" style="display: none;">
+            <h3 class="card-title"><i class="fa-solid fa-chart-bar"></i> Distribusi Keputusan Tetangga</h3>
+            <div class="prob-bars-grid">
+                
+                <div class="prob-item">
+                    <div class="prob-info">
+                        <span>Hawar Daun Bakteri (BBL)</span>
+                        <span id="prob-blight-pct" style="color: var(--color-blight); font-weight: 700;">0.0%</span>
+                    </div>
+                    <div class="prob-bar-bg">
+                        <div class="prob-bar-fill blight" id="prob-blight-bar" style="width: 0%;"></div>
+                    </div>
+                </div>
+                
+                <div class="prob-item">
+                    <div class="prob-info">
+                        <span>Bercak Cokelat (Brown Spot)</span>
+                        <span id="prob-brown-pct" style="color: var(--color-brown); font-weight: 700;">0.0%</span>
+                    </div>
+                    <div class="prob-bar-bg">
+                        <div class="prob-bar-fill brown" id="prob-brown-bar" style="width: 0%;"></div>
+                    </div>
+                </div>
+                
+                <div class="prob-item">
+                    <div class="prob-info">
+                        <span>Smut Daun (Leaf Smut)</span>
+                        <span id="prob-smut-pct" style="color: var(--color-smut); font-weight: 700;">0.0%</span>
+                    </div>
+                    <div class="prob-bar-bg">
+                        <div class="prob-bar-fill smut" id="prob-smut-bar" style="width: 0%;"></div>
+                    </div>
+                </div>
+                
+                <div class="prob-item">
+                    <div class="prob-info">
+                        <span>Sehat (Healthy)</span>
+                        <span id="prob-healthy-pct" style="color: var(--color-healthy); font-weight: 700;">0.0%</span>
+                    </div>
+                    <div class="prob-bar-bg">
+                        <div class="prob-bar-fill healthy" id="prob-healthy-bar" style="width: 0%;"></div>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+        
+        <!-- Neighbors Details Card -->
+        <div class="glass-card neighbors-card" id="neighbors-card" style="display: none;">
+            <h3 class="card-title"><i class="fa-solid fa-people-group"></i> Detail K-Tetangga Terdekat</h3>
+            <div class="table-responsive">
+                <table class="data-table" id="neighbors-table">
+                    <thead>
+                        <tr>
+                            <th>No / Jarak</th>
+                            <th>Kondisi Tetangga (Kelas)</th>
+                            <th>Kehijauan</th>
+                            <th>Bercak Cokelat</th>
+                            <th>Bercak Hitam</th>
+                            <th>Luas Lesi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Neighbor list will be populated dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% endblock %}

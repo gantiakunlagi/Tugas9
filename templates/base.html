@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}KNN Klasifikasi Penyakit Daun Padi{% endblock %}</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Custom Style -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <!-- Background Elements for Premium Glassmorphism Effect -->
+    <div class="bg-blur-circle bg-circle-1"></div>
+    <div class="bg-blur-circle bg-circle-2"></div>
+    <div class="bg-blur-circle bg-circle-3"></div>
+
+    <div class="app-container">
+        <!-- Sidebar / Navbar Navigation -->
+        <header class="main-header">
+            <div class="logo">
+                <i class="fa-solid fa-leaf-list logo-icon"></i>
+                <div class="logo-text">
+                    <h1>analisdongs</h1>
+                    <span>Pasti Akuurat</span>
+                </div>
+            </div>
+            <nav class="nav-menu">
+                <a href="/" class="nav-item {% if request.path == '/' %}active{% endif %}" id="nav-dashboard">
+                    <i class="fa-solid fa-chart-line"></i> <span>Dashboard Klasifikasi</span>
+                </a>
+                <a href="/dataset" class="nav-item {% if request.path == '/dataset' %}active{% endif %}" id="nav-dataset">
+                    <i class="fa-solid fa-database"></i> <span>Dataset Explorer</span>
+                </a>
+                <a href="/guide" class="nav-item {% if request.path == '/guide' %}active{% endif %}" id="nav-guide">
+                    <i class="fa-solid fa-book-open"></i> <span>Teori KNN & Panduan</span>
+                </a>
+            </nav>
+            <div class="student-info">
+                <div class="info-avatar">
+                    <i class="fa-solid fa-user-graduate"></i>
+                </div>
+                <div class="info-details">
+                    <p class="student-name">Tugas Praktikum 9</p>
+                    <p class="student-title">Aplikasi KNN Flask</p>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            {% block content %}{% endblock %}
+        </main>
+
+        <!-- Footer -->
+        <footer class="main-footer">
+            <p>&copy; 2026 Proyek Praktikum Machine Learning - Klasifikasi Penyakit Daun Padi dengan Algoritma KNN Berbasis Flask</p>
+            <div class="footer-badges">
+                <span class="badge badge-python"><i class="fa-brands fa-python"></i> Python</span>
+                <span class="badge badge-flask"><i class="fa-solid fa-pepper-hot"></i> Flask</span>
+                <span class="badge badge-sklearn"><i class="fa-solid fa-gears"></i> Scikit-Learn</span>
+            </div>
+        </footer>
+    </div>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>

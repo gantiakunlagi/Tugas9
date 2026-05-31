@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+
+{% block title %}Teori KNN & Panduan Penyakit Daun Padi{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>Teori KNN & Panduan Penyakit Daun Padi</h2>
+    <p>Pelajari konsep matematika di balik algoritma K-Nearest Neighbors dan karakteristik klinis penyakit daun padi.</p>
+</div>
+
+<div class="guide-layout">
+    <!-- Left Column: Main Guides -->
+    <div class="guide-main">
+        
+        <!-- 1. KNN Theory Section -->
+        <div class="glass-card guide-section">
+            <h3><i class="fa-solid fa-graduation-cap"></i> Konsep Algoritma K-Nearest Neighbors (KNN)</h3>
+            <p>
+                <strong>K-Nearest Neighbors (KNN)</strong> adalah algoritma pembelajaran mesin terawasi (supervised learning) yang sangat sederhana namun kuat. KNN digunakan untuk klasifikasi atau regresi. Dalam konteks klasifikasi penyakit daun padi ini, KNN bekerja dengan prinsip dasar: <em>"Bila suatu objek memiliki ciri-ciri visual yang sangat mirip dengan beberapa sampel daun padi bermasalah tertentu di masa lalu, maka objek tersebut kemungkinan besar menderita penyakit yang sama."</em>
+            </p>
+            <p>
+                KNN tidak membangun model eksplisit selama fase pelatihan (sering disebut sebagai <strong>Lazy Learner</strong>). Algoritma ini menyimpan seluruh data pelatihan dan melakukan perhitungan klasifikasi langsung ketika ada data baru yang masuk (query point).
+            </p>
+            
+            <div class="math-formula">
+                <span>Rumus Jarak Euclidean (Euclidean Distance):</span>
+                $$d(x, y) = \sqrt{\sum_{i=1}^{n} (x_i - y_i)^2}$$
+                <span class="math-subtext">Mengukur jarak garis lurus terpendek antara dua titik dalam ruang fitur multidimensi.</span>
+            </div>
+
+            <div class="math-formula">
+                <span>Rumus Jarak Manhattan (Manhattan Distance):</span>
+                $$d(x, y) = \sum_{i=1}^{n} |x_i - y_i|$$
+                <span class="math-subtext">Mengukur jarak berdasarkan penjumlahan selisih mutlak koordinatnya (seperti jalur blok kota).</span>
+            </div>
+            
+            <p>
+                Dalam sistem klasifikasi ini, terdapat 4 dimensi fitur ($n=4$) yang kita bandingkan antara daun uji dengan dataset latih, yaitu: <strong>Kehijauan (Greenness)</strong>, <strong>Bercak Cokelat</strong>, <strong>Bercak Hitam</strong>, dan <strong>Luas Lesi Kuning</strong>.
+            </p>
+        </div>
+
+        <!-- 2. Rice Leaf Diseases Guide Section -->
+        <div class="glass-card guide-section">
+            <h3><i class="fa-solid fa-leaf"></i> Karakteristik Penyakit Daun Padi</h3>
+            <p>
+                Berikut adalah penjelasan mengenai 3 penyakit utama daun padi yang disimulasikan dan diklasifikasikan dalam aplikasi ini beserta kondisi normal tanaman sehat:
+            </p>
+            
+            <div class="guide-grid">
+                
+                <div class="disease-info-box">
+                    <div class="disease-info-header">
+                        <span class="dot blight"></span>
+                        <h4>Hawar Daun Bakteri (BBL)</h4>
+                    </div>
+                    <p style="font-size: 0.85rem; line-height: 1.5; color: #d1d5db; margin-bottom: 0.5rem;">
+                        <strong>Penyebab:</strong> Bakteri <em>Xanthomonas oryzae pv. oryzae</em>.
+                    </p>
+                    <p style="font-size: 0.85rem; line-height: 1.5; color: #9ca3af;">
+                        Menyerang helai daun padi dari tepi atau ujung berupa lesi kebasahan memanjang berwarna abu-abu kehijauan, lalu berubah kuning bergelombang, hingga kering kecokelatan seperti terbakar. Sangat destruktif pada fase anakan.
+                    </p>
+                </div>
+
+                <div class="disease-info-box">
+                    <div class="disease-info-header">
+                        <span class="dot brown"></span>
+                        <h4>Bercak Cokelat (Brown Spot)</h4>
+                    </div>
+                    <p style="font-size: 0.85rem; line-height: 1.5; color: #d1d5db; margin-bottom: 0.5rem;">
+                        <strong>Penyebab:</strong> Jamur <em>Bipolaris oryzae</em>.
+                    </p>
+                    <p style="font-size: 0.85rem; line-height: 1.5; color: #9ca3af;">
+                        Ditandai dengan bercak oval merata berwarna cokelat tua berukuran bervariasi dengan pusat abu-abu terang dikelilingi lingkaran kuning tipis. Umumnya menjangkiti tanaman yang mengalami stres air atau kekurangan hara (misal Kalium).
+                    </p>
+                </div>
+
+                <div class="disease-info-box">
+                    <div class="disease-info-header">
+                        <span class="dot smut"></span>
+                        <h4>Smut Daun (Leaf Smut)</h4>
+                    </div>
+                    <p style="font-size: 0.85rem; line-height: 1.5; color: #d1d5db; margin-bottom: 0.5rem;">
+                        <strong>Penyebab:</strong> Jamur <em>Entyloma oryzae</em>.
+                    </p>
+                    <p style="font-size: 0.85rem; line-height: 1.5; color: #9ca3af;">
+                        Menghasilkan bintik-bintik hitam kecil menonjol berbentuk persegi panjang atau bulat pada daun padi. Bintik ini adalah sori jamur berisi spora hitam. Muncul dominan di akhir fase pertumbuhan padi dan jarang menimbulkan kerusakan fatal.
+                    </p>
+                </div>
+
+                <div class="disease-info-box">
+                    <div class="disease-info-header">
+                        <span class="dot healthy"></span>
+                        <h4>Daun Padi Sehat (Healthy)</h4>
+                    </div>
+                    <p style="font-size: 0.85rem; line-height: 1.5; color: #d1d5db; margin-bottom: 0.5rem;">
+                        <strong>Penyebab:</strong> Nutrisi & Lingkungan Optimal.
+                    </p>
+                    <p style="font-size: 0.85rem; line-height: 1.5; color: #9ca3af;">
+                        Daun berwarna hijau segar seragam dari pangkal hingga ujung tanpa bercak nekrotik, bintik hitam, maupun luka layu kekuningan. Menunjukkan klorofil bekerja sangat baik menyerap sinar matahari untuk fotosintesis optimal.
+                    </p>
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+
+    <!-- Right Column: Step-by-Step Flow -->
+    <div class="guide-sidebar">
+        <div class="glass-card">
+            <h3 class="card-title" style="font-size: 1.15rem;"><i class="fa-solid fa-code-branch"></i> Alur Kerja KNN</h3>
+            
+            <ul class="steps-list">
+                <li class="step-item">
+                    <div class="step-num">1</div>
+                    <div class="step-text">
+                        <h5>Inisialisasi Nilai K</h5>
+                        <p>Tentukan parameter integer ganjil $K$ (misal 5) untuk mencegah hasil seri saat voting mayoritas kelas tetangga.</p>
+                    </div>
+                </li>
+                
+                <li class="step-item">
+                    <div class="step-num">2</div>
+                    <div class="step-text">
+                        <h5>Hitung Jarak Fitur</h5>
+                        <p>Hitung jarak matematis (Euclidean/Manhattan) dari data uji ke seluruh sampel di dataset latih.</p>
+                    </div>
+                </li>
+                
+                <li class="step-item">
+                    <div class="step-num">3</div>
+                    <div class="step-text">
+                        <h5>Urutkan Tetangga</h5>
+                        <p>Urutkan semua sampel latih secara naik (ascending) berdasarkan nilai jarak terkecil.</p>
+                    </div>
+                </li>
+                
+                <li class="step-item">
+                    <div class="step-num">4</div>
+                    <div class="step-text">
+                        <h5>Ambil K-Terdekat</h5>
+                        <p>Pilih top $K$ sampel teratas yang memiliki jarak terkecil (paling mirip secara visual dengan data uji).</p>
+                    </div>
+                </li>
+                
+                <li class="step-item">
+                    <div class="step-num">5</div>
+                    <div class="step-text">
+                        <h5>Voting Mayoritas</h5>
+                        <p>Tentukan prediksi kelas akhir berdasarkan label kelas mayoritas dari $K$ tetangga tersebut.</p>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        
+        <div class="glass-card" style="border-color: rgba(52, 152, 219, 0.25);">
+            <h3 class="card-title" style="font-size: 1.15rem; color: #3498db;"><i class="fa-solid fa-circle-question"></i> Tips Memilih K</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 0.75rem;">
+                Pemilihan nilai $K$ sangat memengaruhi performa model:
+            </p>
+            <p style="font-size: 0.82rem; color: #d1d5db; line-height: 1.5; margin-bottom: 0.5rem;">
+                • <strong>K Terlalu Kecil (misal K=1):</strong> Model sensitif terhadap derau (noise) atau data outlier (Overfitting).
+            </p>
+            <p style="font-size: 0.82rem; color: #d1d5db; line-height: 1.5;">
+                • <strong>K Terlalu Besar (misal K=25):</strong> Batas keputusan menjadi kabur dan menyertakan sampel dari kelas lain (Underfitting).
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
